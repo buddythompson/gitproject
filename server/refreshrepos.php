@@ -42,18 +42,32 @@ for ($page=1; $page<4; $page++) {
             $result = $dbh->prepare($sql); $result->execute();
             $rowsX = $result->fetchALL(PDO::FETCH_ASSOC);
             $countX=count($rowsX);
-            if ($countX==0) {
+            if ($countX==0) {            
                 $sql="insert into repodata (repositoryid,name,url,createdate,pushdate,description,stars,insertiondate,lastmoddate)
-                values ($item->id,'$item->name','$item->html_url','$item->created_at','$item->pushed_at','$item->description',
-                '$item->stargazers_count',Now(),Now())";
-                $result = $dbh->prepare($sql); $result->execute();    
+                values (:id,':name',':html_url',':created_at',':pushed_at',':description',
+                ':stargazers_count',Now(),Now())";
+                $result = $dbh->prepare($sql);
+                $result->bindParam(":id", $item->id);
+                $result->bindParam(":name", $item->name);
+                $result->bindParam(":html_url", $item->html_url);
+                $result->bindParam(":created_at", $item->created_at);
+                $result->bindParam(":pushed_at", $item->pushed_at);
+                $result->bindParam(":description", $item->description);
+                $result->execute();    
                 $i++;
             } else 
             {
-                $sql="update repodata set name='$item->name', url='$item->html_url', createdate='$item->created_at', 
-                pushdate='$item->pushed_at',description='$item->description',
-                stars='$item->stargazers_count',lastmoddate=Now() where repositoryid=$item->id";
-                $result = $dbh->prepare($sql); $result->execute();    
+                $sql="update repodata set name=':name', url=':html_url', createdate=':created_at', 
+                pushdate=':pushed_at',description=':description',
+                stars=':stargazers_count',lastmoddate=Now() where repositoryid=:id";
+                $result = $dbh->prepare($sql); 
+                $result->bindParam(":id", $item->id);
+                $result->bindParam(":name", $item->name);
+                $result->bindParam(":html_url", $item->html_url);
+                $result->bindParam(":created_at", $item->created_at);
+                $result->bindParam(":pushed_at", $item->pushed_at);
+                $result->bindParam(":description", $item->description);
+                $result->execute();    
                 $x++;
             }
         }
